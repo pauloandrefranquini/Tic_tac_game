@@ -1,122 +1,96 @@
-
-
 class Player:
     def __init__(self, opcao_de_jogo):
         self.opcao_de_jogo = opcao_de_jogo
 
 
-tabela = [ " " for i in range(9)]
+# 🧩 Tabela do jogo da velha (1D)
+tabela = [" " for _ in range(10)]
 
 
-
+# 🔁 Função para reiniciar o jogo
 def zerar_tabela():
-    for i in range(9):
-        tabela[i]= " "
+    global tabela
+    tabela = [" " for _ in range(10)]
 
 
+# 🎯 Exibição da tabela
 def mostrar_tabela(tab):
-    print(f" {tab[0]} | {tab[1]} | {tab[2]} ")
+    print(f" {tab[7]} | {tab[8]} | {tab[9]} ")
     print("——— ——— ———")
-    print(f" {tab[3]} | {tab[4]} | {tab[5]} ")
+    print(f" {tab[4]} | {tab[5]} | {tab[6]} ")
     print("——— ——— ———")
-    print(f" {tab[6]} | {tab[7]} | {tab[8]} ")
+    print(f" {tab[1]} | {tab[2]} | {tab[3]} ")
 
 
-def jogada(x_ou_o):
+# ✅ Verifica se alguém venceu
+def verificar_vencedor():
+    combinacoes = [
+        [7, 8, 9], [4, 5, 6], [1, 2, 3],  # Linhas
+        [1, 4, 7], [2, 5, 8], [3, 6, 9],  # Colunas
+        [1, 5, 9], [3, 5, 7]              # Diagonais
+    ]
+    for a, b, c in combinacoes:
+        if tabela[a] != " " and tabela[a] == tabela[b] == tabela[c]:
+            return True
+    return False
+
+
+# 🎮 Jogada com validação
+def jogada(simbolo):
     mostrar_tabela(tabela)
+    print(f"Você está jogando como {simbolo}")
 
-    print(f"Você está jogando como {x_ou_o}")
-
-    posicao = int(input("Qual posição jogar ?"))
-
-    if tabela[posicao] == " " :
-        tabela[posicao]= x_ou_o
-    else:
-        print("\nAcho que você jogou errado\n")
-        jogada(x_ou_o)
-
-
-
+    while True:
+        try:
+            posicao = int(input("Qual posição jogar (1–9)? "))
+            if 1 <= posicao <= 9 and tabela[posicao] == " ":
+                tabela[posicao] = simbolo
+                break
+            else:
+                print("Posição inválida ou já ocupada.")
+        except ValueError:
+            print("Digite um número válido entre 1 e 9.")
 
 
+# 🧠 Loop principal do jogo
 def main():
-
-    numero = input("Se quer rodar o código aperte 0, se não, aperte 1 ")
-
-    while int(numero) < 1:
-        opcao_de_jogo = input("\nQual você quer ser ?[X ou O]").upper()
+    while True:
+        opcao_de_jogo = input("\nQual você quer ser? [X ou O] ").upper()
+        if opcao_de_jogo not in ["X", "O"]:
+            print("Escolha válida: X ou O.")
+            continue
 
         jogador1 = Player(opcao_de_jogo)
-
-        if jogador1.opcao_de_jogo == "X":
-            jogador2 = Player("O")
-
-        else:
-            jogador2 = Player("X")
-
+        jogador2 = Player("O" if jogador1.opcao_de_jogo == "X" else "X")
         players = [jogador1, jogador2]
 
-
+        zerar_tabela()
         current_player_index = 0
+        jogadas = 0
 
-        controle = 0
-
-        controle_jogada = 0
-
-        while controle < 1:
+        while True:
             current_player = players[current_player_index]
-
             jogada(current_player.opcao_de_jogo)
+            jogadas += 1
 
-            controle_jogada += 1
-
-            if tabela[0] == "X" and tabela[1] == "X" and tabela[2] == "X" or tabela[0]== "O" and tabela[1]== "O" and tabela[2] == "O":
-                controle += 1
-
-            elif tabela[3] == "X"  and tabela[4] == "X"  and tabela[5] == "X" or tabela[3] == "O" and tabela[4] == "O" and tabela[5] == "O":
-                controle += 1
-
-            elif tabela[6] == "X"  and tabela[7] == "X"  and tabela[8] == "X" or tabela[6] == "O" and tabela[7] == "O" and tabela[8] == "O":
-                controle += 1
-
-            elif tabela[0] == "X" and tabela[3] == "X" and tabela[6] == "X" or tabela[0] == "O" and tabela[3] == "O" and tabela[6] == "O":
-                controle += 1
-
-            elif tabela[1] == "X" and tabela[4] == "X" and tabela[7] == "X" or tabela[1] == "O" and tabela[4] == "O" and tabela[7] == "O":
-                controle += 1
-
-            elif tabela[2] == "X" and tabela[5] == "X" and tabela[8] == "X" or tabela[2] == "O" and tabela[5] == "O" and tabela[8] == "O":
-                controle += 1
-
-            elif tabela[0] == "X" and tabela[4] == "X" and tabela[8] == "X" or tabela[0] == "O" and tabela[4] == "O" and tabela[8] == "O":
-                controle += 1
-
-            elif tabela[2] == "X" and tabela[4] == "X" and tabela[6] == "X" or tabela[2] == "O" and tabela[4] == "O" and tabela[6] == "O":
-                controle += 1
-
-            elif controle_jogada == 9 :
-                controle += 1
-                print("\n")
+            if verificar_vencedor():
                 mostrar_tabela(tabela)
-                print("Empate\n")
+                print(f"{current_player.opcao_de_jogo} venceu! 🎉\n")
+                break
 
-            else:
-                print("")
+            if jogadas == 9:
+                mostrar_tabela(tabela)
+                print("Empate! 🤝\n")
+                break
 
-            # Advance to the next player
-            current_player_index = (current_player_index + 1) % len(players)
+            current_player_index = (current_player_index + 1) % 2
 
-        numero = int(input("\nQuer continuar ?[0 sim/1 não]"))
-
-        if numero == 0:
-            numero == 0
-            zerar_tabela()
-
-        else:
-            numero += 1
+        continuar = input("Quer jogar novamente? [s/n] ").lower()
+        if continuar != "s":
+            print("Obrigado por jogar! 👋")
+            break
 
 
 main()
-
 
 
